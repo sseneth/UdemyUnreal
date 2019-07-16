@@ -15,6 +15,7 @@ void PrintIntro();
 void PlayGame();
 FText GetGuess();
 bool PlayAgain();
+void PrintGameSummary();
 
 FBullCowGame BCGame;
 
@@ -36,7 +37,7 @@ int main(){
 void PrintIntro(){
 
 	// introduce the game
-	std::cout << "Welcome to Bulls and Cows\n";
+	std::cout << "\n\nWelcome to Bulls and Cows\n";
 	std::cout << "Can you guess the " << BCGame.GetWordLength();
 	std::cout << " letter isogram I'm thinking of?\n";
 	std::cout << std::endl;
@@ -50,19 +51,20 @@ void PlayGame() {
 	int32 MaxTries = BCGame.GetMaxTries();
 	std::cout << MaxTries << std::endl;
 
-	//loop for the number of turns asking for guesses
-	//TODO change from for to while loops
-	for (int32 i = 1; i <= MaxTries; i++) {
+	//loop asking for guesses while game
+	// is NOT won and there are still tries remaining
+	while (!BCGame.IsGameWon() && BCGame.GetCurrentTry() <= MaxTries) {
+		
 		FText Guess = GetGuess();
 
 		// submit valid guess to the game, and receive data
-		FBullCowCount BullCowCount = BCGame.SubmitGuess(Guess);
+		FBullCowCount BullCowCount = BCGame.SubmitValidGuess(Guess);
 
 		std::cout << "Bulls = " << BullCowCount.Bulls;
 		std::cout << " Cows = " << BullCowCount.Cows << "\n\n";
 	}
-
-	//TODO summarize game
+	
+	PrintGameSummary();
 
 	return;
 }
@@ -71,11 +73,11 @@ void PlayGame() {
 FText GetGuess() {
 
 	EGuessStatus Status = EGuessStatus::Invalid_Status;
+	FText Guess = "";
 	do {
 		// get guess from the player
 		int32 CurrentTry = BCGame.GetCurrentTry();
 		std::cout << "Try " << CurrentTry << ". Enter your guess: ";
-		FText Guess = "";
 		std::getline(std::cin, Guess);
 
 		Status = BCGame.CheckGuessValidity(Guess);
@@ -91,13 +93,15 @@ FText GetGuess() {
 			std::cout << "Please enter all lowercase letters. \n";
 			break;
 		default:
-			return Guess;
+			break;
 		}
 		std::cout << std::endl;
 	} while (Status != EGuessStatus::OK);
+
+	return Guess;
 }
 
-bool PlayAgain() {
+bool PlayAgain() { 
 
 	std::cout << "Do you want to play again? (y/n) ";
 	FText Response = "";
@@ -105,4 +109,14 @@ bool PlayAgain() {
 	
 	return (Response[0] == 'y') || (Response[0] == 'Y');
 	// TODO Accept only (y/n) type inputs
+}
+
+void PrintGameSummary() {
+
+	if (BCGame.IsGameWon()) {
+		std::cout << "Well done! - You won!\n";
+	}
+	else {
+		std::cout << "Better luck next time!\n";
+	};
 }
