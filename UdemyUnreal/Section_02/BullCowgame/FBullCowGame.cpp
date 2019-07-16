@@ -1,25 +1,30 @@
+#pragma once
 #include "stdafx.h"
 #include "FBullCowGame.h"
 #include <map>
+
+// To make syntax Unreal friendly
 #define TMap std::map
 
 using FText = std::string;
 using int32 = int;
 
-FBullCowGame::FBullCowGame() { Reset(); }
+FBullCowGame::FBullCowGame() { Reset(); } // default constructor
 
-int32 FBullCowGame::GetMaxTries() const { return MyMaxTries; }
 int32 FBullCowGame::GetCurrentTry() const { return MyCurrentTry; }
 int32 FBullCowGame::GetWordLength() const { return MyHiddenWord.length(); }
 bool FBullCowGame::IsGameWon() const { return bGameIsWon; }
 
+int32 FBullCowGame::GetMaxTries() const { 
+	TMap<int32, int32> WordLengthToMaxTries{ {3,4}, {4,7}, {5,10}, {6,15}, {7,20} };
+	return WordLengthToMaxTries[MyHiddenWord.length()];
+}
+
 void FBullCowGame::Reset()
 {
-	constexpr int MAX_TRIES = 8;
-	const FString HIDDEN_WORD = "planet";
-
-	MyMaxTries = MAX_TRIES;
+	const FString HIDDEN_WORD = "planet"; // this MUST be an isogram
 	MyHiddenWord = HIDDEN_WORD;
+
 	MyCurrentTry = 1;
 	bGameIsWon = false;
 	return;
@@ -55,9 +60,7 @@ FBullCowCount FBullCowGame::SubmitValidGuess(FString Guess)
 	int32 WorldLength = MyHiddenWord.length(); // assuming same length as guess
 
 	for (int32 MHWChar = 0; MHWChar < WorldLength; MHWChar++) {
-		// compare letters against the hidden word
 		for (int32 GChar = 0; GChar < WorldLength; GChar++) {
-			// if they match then 
 			if (Guess[GChar] == MyHiddenWord[MHWChar]) {
 				if (MHWChar == GChar) {
 					BullCowCount.Bulls++;
